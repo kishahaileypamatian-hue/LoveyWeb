@@ -1,0 +1,51 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A Garden for You</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="garden-page">
+
+  <header class="garden-header">
+    <a href="index.html" class="back-button">← Back home</a>
+    <p class="garden-label">✦ A GARDEN FOR YOU ✦</p>
+    <div class="header-spacer"></div>
+  </header>
+
+  <main class="garden-main">
+    <div class="garden-title">
+      <p class="eyebrow">A LITTLE LOVE, ONE CLICK AT A TIME</p>
+      <h1>Every flower is <span>for you.</span></h1>
+      <p>Click anywhere to plant a flower. ♡</p>
+    </div>
+
+    <div id="garden" class="garden" aria-label="Interactive flower garden">
+      <canvas id="flowerCanvas"></canvas>
+
+      <div id="gardenHint" class="garden-hint">
+        <span class="hint-sparkle">✧</span>
+        Click anywhere to plant your first flower
+        <span class="hint-sparkle">✧</span>
+      </div>
+    </div>
+
+    <div class="garden-bottom">
+      <p id="flowerCount">0 flowers planted</p>
+      <button id="resetGarden" class="reset-button" type="button">
+        Start over ↻
+      </button>
+    </div>
+
+    <p class="garden-message">
+      If I could, I'd give you a flower every day. ♡
+    </p>
+  </main>
+
+  <script src="js/flowers.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/heart-cursor.js"></script>
+</body>
+</html>

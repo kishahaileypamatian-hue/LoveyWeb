@@ -1,0 +1,67 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A Little Secret ♡</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="home-page">
+
+  <main class="password-layout">
+    <div class="home-glow"></div>
+
+    <!-- Polaroid photo on the side -->
+    <figure class="password-polaroid">
+      <img src="images/me.jpg" alt="A photo of me" />
+      <figcaption>your favorite person ♡</figcaption>
+    </figure>
+
+    <!-- Password form -->
+    <section class="password-content">
+      <p class="eyebrow">A LITTLE SOMETHING FOR YOU</p>
+
+      <h1>A little <span>secret.</span></h1>
+
+      <p class="home-description">
+        You know me, don't you?
+        So tell me, who am I to you? ♡
+      </p>
+
+      <form id="passwordForm" class="password-form">
+        <label for="passwordInput">Who am I to you?</label>
+
+        <div class="password-input-wrap">
+          <input
+            id="passwordInput"
+            type="password"
+            placeholder="Your answer, my love..."
+            autocomplete="off"
+            required
+          />
+
+          <button
+            type="button"
+            id="togglePassword"
+            class="toggle-password"
+            aria-label="Show password"
+          >Show</button>
+        </div>
+
+        <p id="passwordError" class="password-error" aria-live="polite"></p>
+
+        <button type="submit" class="primary-button password-submit">
+          <span>Unlock my surprise</span>
+          <span class="button-arrow">♡</span>
+        </button>
+      </form>
+
+      <p class="home-footer">A little surprise, made with love ♡</p>
+    </section>
+  </main>
+
+  <script src="js/auth.js"></script>
+  <script src="js/heart-cursor.js"></script>
+</body>
+</html>
