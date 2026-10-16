@@ -13,10 +13,13 @@
         <p class="eyebrow">A LITTLE SOMETHING FOR YOU</p>
 
         <h1>
-          A little <span>{{ adminMode ? 'admin sign-in.' : 'secret.' }}</span>
+          A little
+          <span>
+            {{ adminMode ? 'admin sign-in.' : guestMode ? 'your login.' : 'secret.' }}
+          </span>
         </h1>
 
-        <template v-if="!adminMode">
+        <template v-if="!adminMode && !guestMode">
           <p class="home-description">
             You know me, don't you?
             So tell me, who am I to you? ♡
@@ -57,13 +60,20 @@
 
         <template v-else>
           <p class="home-description">
-            Welcome back, sweetheart. Sign in to manage your letters. ♡
+            {{
+              adminMode
+                ? 'Welcome back, sweetheart. Sign in to manage your letters. ♡'
+                : 'Welcome back, my love. Sign in to open your letters. ♡'
+            }}
           </p>
 
-          <form class="password-form" @submit.prevent="adminLogin">
-            <label for="adminEmail">Email</label>
+          <form
+            class="password-form"
+            @submit.prevent="adminMode ? adminLogin() : guestLogin()"
+          >
+            <label for="accountEmail">Email</label>
             <input
-              id="adminEmail"
+              id="accountEmail"
               v-model.trim="email"
               type="email"
               placeholder="Your email"
@@ -71,11 +81,12 @@
               required
             />
 
-            <label for="adminPassword">Password</label>
+            <label for="accountPassword">Password</label>
+
             <div class="password-input-wrap">
               <input
-                id="adminPassword"
-                v-model="adminPassword"
+                id="accountPassword"
+                v-model="accountPassword"
                 :type="showPassword ? 'text' : 'password'"
                 placeholder="Your password"
                 autocomplete="current-password"
@@ -100,7 +111,15 @@
               class="primary-button password-submit"
               :disabled="loading"
             >
-              <span>{{ loading ? 'Signing in...' : 'Enter my dashboard' }}</span>
+              <span>
+                {{
+                  loading
+                    ? 'Signing in...'
+                    : adminMode
+                      ? 'Enter my dashboard'
+                      : 'Open my letters ♡'
+                }}
+              </span>
               <span class="button-arrow">♡</span>
             </button>
 
@@ -127,10 +146,13 @@ const password = ref('')
 const showPassword = ref(false)
 const errorMessage = ref('')
 const adminMode = ref(false)
+const guestMode = ref(false)
 
 const email = ref('')
-const adminPassword = ref('')
+const accountPassword = ref('')
 const loading = ref(false)
+
+const ADMIN_UID = '35cdbed0-c2b7-4203-bcb7-1572c8491e22'
 
 const HIS_PASSWORD = 'Lovey'
 const YOUR_PASSWORD = 'Covey'
@@ -148,16 +170,49 @@ function checkPassword() {
   const enteredPassword = normalizeTitleCase(password.value)
 
   if (enteredPassword === normalizeTitleCase(HIS_PASSWORD)) {
-    sessionStorage.setItem('flowerGardenUnlocked', 'true')
-    sessionStorage.setItem('perspective', 'his')
-    router.push('/home')
+    guestMode.value = true
+    adminMode.value = false
+    password.value = ''
+    email.value = ''
+    accountPassword.value = ''
+    showPassword.value = false
   } else if (enteredPassword === normalizeTitleCase(YOUR_PASSWORD)) {
     adminMode.value = true
+    guestMode.value = false
     password.value = ''
+    email.value = ''
+    accountPassword.value = ''
     showPassword.value = false
   } else {
     errorMessage.value = 'Not quite! Try again, sweetheart. ♡'
     password.value = ''
+  }
+}
+
+async function guestLogin() {
+  errorMessage.value = ''
+  loading.value = true
+
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email.value,
+      password: accountPassword.value,
+    })
+
+    if (error) throw error
+
+    if (!data.user || data.user.id === ADMIN_UID) {
+      await supabase.auth.signOut()
+      throw new Error('Please use a guest account to access your letters.')
+    }
+
+    sessionStorage.setItem('perspective', 'his')
+
+    await router.push('/home')
+  } catch (error) {
+    errorMessage.value = error.message || 'Sign-in failed. Please try again.'
+  } finally {
+    loading.value = false
   }
 }
 
@@ -168,22 +223,23 @@ async function adminLogin() {
   try {
     const { data, error } = await supabase.auth.signInWithPassword({
       email: email.value,
-      password: adminPassword.value,
+      password: accountPassword.value,
     })
 
     if (error) throw error
 
-    if (!data.user) {
-      throw new Error('Could not verify your account. Please try again.')
+    if (!data.user || data.user.id !== ADMIN_UID) {
+      await supabase.auth.signOut()
+      throw new Error(
+        'This login is for the admin only. Please use Lovey to sign in.'
+      )
     }
 
-    sessionStorage.setItem('adminUnlocked', 'true')
     sessionStorage.setItem('perspective', 'mine')
 
     await router.push('/admin')
   } catch (error) {
-    errorMessage.value =
-      error.message || 'Sign-in failed. Please try again.'
+    errorMessage.value = error.message || 'Sign-in failed. Please try again.'
   } finally {
     loading.value = false
   }
@@ -191,16 +247,15 @@ async function adminLogin() {
 
 function backToMain() {
   adminMode.value = false
+  guestMode.value = false
   email.value = ''
-  adminPassword.value = ''
+  accountPassword.value = ''
   errorMessage.value = ''
   showPassword.value = false
 }
 </script>
 
-
 <style scoped>
-/* Make the email input match the romantic password field */
 .password-form input[type="email"] {
   box-sizing: border-box;
   width: 100%;
@@ -224,7 +279,6 @@ function backToMain() {
   color: rgba(255, 210, 228, 0.48);
 }
 
-/* Make the Back button match the page */
 .back-button {
   display: inline-block;
   margin-top: 12px;
