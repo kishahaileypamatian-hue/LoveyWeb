@@ -9,6 +9,7 @@ import FlowersView from '../views/FlowersView.vue'
 import AdminView from '../views/AdminView.vue'
 import AcceptInviteView from '../views/AcceptInviteView.vue'
 
+
 const ADMIN_UID = '35cdbed0-c2b7-4203-bcb7-1572c8491e22'
 
 const router = createRouter({
