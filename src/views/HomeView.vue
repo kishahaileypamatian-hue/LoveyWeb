@@ -39,15 +39,29 @@
   </main>
 </template>
 
+```vue
 <script setup>
 import { useRouter } from 'vue-router'
+import { supabase } from '../lib/supabase'
 
 const router = useRouter()
 
-function logout() {
-  sessionStorage.removeItem('flowerGardenUnlocked')
-  sessionStorage.removeItem('perspective')
-  router.replace('/')
+async function logout() {
+  try {
+    const { error } = await supabase.auth.signOut()
+
+    if (error) {
+      console.error('Logout failed:', error.message)
+      return
+    }
+
+    sessionStorage.removeItem('flowerGardenUnlocked')
+    sessionStorage.removeItem('perspective')
+
+    await router.replace('/')
+  } catch (error) {
+    console.error('Logout failed:', error)
+  }
 }
 </script>
 
